@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub Master — Learn GitHub Step by Step</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#0B0B12;
+    --deep:#1B1030;
+    --panel:#150E26;
+    --violet:#8B5CF6;
+    --violet-dim:#6D28D9;
+    --green:#3FB950;
+    --white:#F5F3FF;
+    --muted:#A79DC8;
+    --line:rgba(167,157,200,0.18);
+    --radius:18px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--void);
+    color:var(--white);
+    font-family:'Inter',sans-serif;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--violet); color:#fff;}
+
+  h1,h2,h3{font-family:'Space Grotesk',sans-serif;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+
+  a{color:inherit; text-decoration:none;}
+
+  /* ---------- progress bar ---------- */
+  .progress-track{
+    position:fixed; top:0; left:0; height:3px; width:100%;
+    background:rgba(255,255,255,0.05); z-index:999;
+  }
+  .progress-fill{
+    height:100%; width:0%;
+    background:linear-gradient(90deg,var(--violet),var(--green));
+    transition:width .1s linear;
+  }
+
+  /* ---------- nav ---------- */
+  nav{
+    position:fixed; top:3px; left:0; right:0; z-index:998;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 6vw;
+    background:rgba(11,11,18,0.55);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+  .brand{display:flex; align-items:center; gap:10px; font-weight:700; font-size:1.05rem; letter-spacing:-0.02em;}
+  .brand-mark{
+    width:26px; height:26px; border-radius:8px;
+    background:conic-gradient(from 180deg, var(--violet), var(--green), var(--violet));
+    display:grid; place-items:center; font-size:12px; font-weight:700; color:var(--void);
+  }
+  nav .links{display:flex; gap:28px; font-size:0.88rem; color:var(--muted);}
+  nav .links a:hover{color:var(--white);}
+
+  @media (max-width:640px){
+    nav{padding:14px 5vw;}
+    .brand{font-size:0.92rem; gap:6px;}
+    .brand-mark{width:22px; height:22px; font-size:10px;}
+    nav .links{gap:14px; font-size:0.72rem;}
+  }
+  @media (max-width:400px){
+    nav .links a:nth-child(2){display:none;} /* hide "Mistakes" on very narrow screens */
+  }
+
+  section{padding:0 6vw; max-width:100vw;}
+  html, body{max-width:100%; overflow-x:hidden;}
+
+  /* ---------- hero ---------- */
+  .hero{
+    min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; position:relative; padding-top:80px;
+  }
+  .hero::before{
+    content:""; position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(139,92,246,0.25), transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(63,185,80,0.12), transparent 40%);
+    pointer-events:none;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace; font-size:0.78rem; color:var(--green);
+    letter-spacing:0.08em; margin-bottom:18px; opacity:0;
+    animation:rise .7s ease forwards;
+  }
+  .eyebrow::before{content:"$ "; color:var(--muted);}
+  .hero h1{
+    font-size:clamp(2.4rem, 6vw, 5rem); line-height:1.05; letter-spacing:-0.03em;
+    max-width:14ch; opacity:0; animation:rise .8s ease .1s forwards;
+  }
+  .hero h1 .accent{
+    background:linear-gradient(100deg, var(--violet), #C4B5FD);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .hero p{
+    margin-top:22px; color:var(--muted); font-size:1.1rem; max-width:38ch;
+    opacity:0; animation:rise .8s ease .2s forwards;
+  }
+  .hero-ctas{display:flex; flex-wrap:wrap; justify-content:center; gap:14px; margin-top:38px; opacity:0; animation:rise .8s ease .3s forwards;}
+  .btn{
+    padding:14px 28px; border-radius:999px; font-weight:600; font-size:0.95rem;
+    border:1px solid transparent; cursor:pointer; transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .btn-primary{background:var(--violet); color:#fff;}
+  .btn-primary:hover{transform:translateY(-2px); box-shadow:0 12px 30px rgba(139,92,246,0.35);}
+  .btn-ghost{border-color:var(--line); color:var(--white);}
+  .btn-ghost:hover{border-color:var(--violet); transform:translateY(-2px);}
+
+  @keyframes rise{from{opacity:0; transform:translateY(16px);} to{opacity:1; transform:translateY(0);}}
+
+  .scroll-cue{
+    position:absolute; bottom:36px; left:50%; transform:translateX(-50%);
+    font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:var(--muted);
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    animation:bob 2s ease-in-out infinite;
+  }
+  .scroll-cue .stem{width:1px; height:34px; background:linear-gradient(var(--violet), transparent);}
+  @keyframes bob{0%,100%{transform:translate(-50%,0);} 50%{transform:translate(-50%,8px);}}
+
+  /* ---------- timeline / steps ---------- */
+  .timeline-wrap{position:relative; max-width:1040px; margin:0 auto; padding:120px 0 60px;}
+  .branch-line{
+    position:absolute; left:34px; top:0; bottom:0; width:2px;
+    background:var(--line);
+  }
+  .branch-fill{
+    position:absolute; left:34px; top:0; width:2px; height:0%;
+    background:linear-gradient(var(--violet), var(--green));
+    transition:height .2s ease;
+  }
+  @media (max-width:760px){ .branch-line, .branch-fill{left:18px;} }
+
+  .step{
+    position:relative; display:grid; grid-template-columns:110px 1fr; gap:8px 34px;
+    margin-bottom:110px; opacity:0; transform:translateY(30px); transition:opacity .7s ease, transform .7s ease;
+  }
+  .step.in-view{opacity:1; transform:translateY(0);}
+  @media (max-width:760px){ .step{grid-template-columns:44px 1fr; gap:8px 16px;} }
+
+  .node-col{display:flex; flex-direction:column; align-items:center;}
+  .node{
+    width:70px; height:70px; border-radius:50%;
+    background:var(--panel); border:2px solid var(--line);
+    display:grid; place-items:center; font-family:'JetBrains Mono',monospace;
+    font-weight:600; font-size:1.3rem; color:var(--muted);
+    transition:border-color .4s ease, color .4s ease, box-shadow .4s ease;
+  }
+  .step.in-view .node{border-color:var(--violet); color:var(--white); box-shadow:0 0 0 6px rgba(139,92,246,0.12);}
+  @media (max-width:760px){ .node{width:38px; height:38px; font-size:0.85rem;} }
+
+  .step-body{padding-top:6px;}
+  .step-label{font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--green); letter-spacing:0.08em; margin-bottom:8px;}
+  .step-body h2{font-size:clamp(1.4rem,2.6vw,2rem); margin-bottom:14px; letter-spacing:-0.01em;}
+
+  .step-grid{display:grid; grid-template-columns:1.15fr 0.85fr; gap:30px; align-items:start; margin-top:22px;}
+  @media (max-width:840px){ .step-grid{grid-template-columns:1fr;} }
+
+  /* ---------- laptop mockup ---------- */
+  .laptop{
+    background:linear-gradient(160deg,#1a1230,#0d0818);
+    border-radius:20px; padding:14px 14px 26px;
+    border:1px solid var(--line);
+    box-shadow:0 30px 60px -20px rgba(0,0,0,0.6);
+  }
+  .laptop-cam{width:6px; height:6px; border-radius:50%; background:#332a4d; margin:0 auto 10px;}
+  .screen{
+    background:#0d1117; border-radius:8px; overflow:hidden; border:1px solid #21262d;
+    font-family:'JetBrains Mono',monospace;
+  }
+  .browser-bar{
+    display:flex; align-items:center; gap:8px; padding:8px 10px; background:#161b22; border-bottom:1px solid #21262d;
+  }
+  .dot{width:8px; height:8px; border-radius:50%;}
+  .dot.r{background:#ff5f56;} .dot.y{background:#ffbd2e;} .dot.g{background:#27c93f;}
+  .url{
+    flex:1; margin-left:6px; background:#0d1117; border:1px solid #30363d; border-radius:6px;
+    padding:4px 10px; font-size:0.68rem; color:#8b949e; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .gh-topbar{display:flex; align-items:center; gap:10px; padding:10px 14px; border-bottom:1px solid #21262d;}
+  .gh-mark{width:18px; height:18px; border-radius:5px; background:var(--white);}
+  .gh-nav{display:flex; gap:14px; font-size:0.62rem; color:#8b949e;}
+  .screen-body{padding:16px; font-size:0.68rem; color:#c9d1d9; min-height:210px;}
+
+  .field{
+    background:#0d1117; border:1px solid #30363d; border-radius:6px; padding:8px 10px; margin-bottom:10px;
+    color:#8b949e; font-size:0.66rem;
+  }
+  .field.filled{color:#c9d1d9;}
+  .field-label{font-size:0.6rem; color:#8b949e; margin-bottom:4px; display:block;}
+  .gh-btn{
+    display:inline-block; background:var(--green); color:#0d1117; font-weight:600;
+    border-radius:6px; padding:6px 14px; font-size:0.66rem; margin-top:4px;
+  }
+  .gh-btn.outline{background:transparent; border:1px solid #30363d; color:#c9d1d9;}
+  .highlight-ring{
+    outline:2px solid var(--violet); outline-offset:3px; border-radius:6px;
+    box-shadow:0 0 0 4px rgba(139,92,246,0.18);
+  }
+  .file-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:6px 8px; border-bottom:1px solid #21262d; font-size:0.64rem;
+  }
+  .file-row:last-child{border-bottom:none;}
+  .pencil{color:var(--violet); font-size:0.7rem;}
+  .badge{font-size:0.58rem; padding:2px 6px; border-radius:10px; background:rgba(63,185,80,0.15); color:var(--green);}
+  .link-chip{
+    margin-top:10px; background:#0d1117; border:1px dashed var(--green); color:var(--green);
+    border-radius:6px; padding:8px 10px; font-size:0.65rem; word-break:break-all;
+  }
+  .loader{display:flex; align-items:center; justify-content:center; height:180px;}
+  .spinner{
+    width:36px; height:36px; border-radius:50%; border:3px solid #21262d; border-top-color:var(--violet);
+    animation:spin 1s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* ---------- explanation card ---------- */
+  .explain{
+    background:rgba(255,255,255,0.03); border:1px solid var(--line); border-radius:var(--radius);
+    padding:26px 26px; backdrop-filter:blur(10px);
+  }
+  .explain ol{list-style:none; display:flex; flex-direction:column; gap:10px; margin-bottom:18px;}
+  .explain li{
+    display:flex; gap:10px; font-size:0.92rem; color:#DCD6F0; line-height:1.5;
+  }
+  .explain li::before{
+    content:"→"; color:var(--green); flex-shrink:0; font-family:'JetBrains Mono',monospace;
+  }
+  .note{
+    font-size:0.85rem; color:var(--muted); border-left:2px solid var(--violet);
+    padding:10px 14px; background:rgba(139,92,246,0.06); border-radius:0 10px 10px 0;
+  }
+
+  /* ---------- bonus / mistakes ---------- */
+  .section-head{max-width:640px; margin:0 auto 46px; text-align:center;}
+  .section-head .step-label{justify-content:center; display:flex;}
+  .section-head h2{font-size:clamp(1.8rem,3.4vw,2.6rem); letter-spacing:-0.02em;}
+  .section-head p{color:var(--muted); margin-top:12px;}
+
+  .mistakes{
+    max-width:1040px; margin:0 auto; padding:100px 0;
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px;
+  }
+  .mistake-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:20px;
+    font-size:0.9rem; color:#DCD6F0; position:relative; overflow:hidden;
+  }
+  .mistake-card::before{content:"✕"; color:#F87171; font-family:'JetBrains Mono',monospace; font-weight:700; margin-right:8px;}
+
+  /* ---------- FAQ ---------- */
+  .faq{max-width:760px; margin:0 auto; padding:60px 0 140px;}
+  .faq-item{border-bottom:1px solid var(--line);}
+  .faq-q{
+    width:100%; text-align:left; background:none; border:none; color:var(--white);
+    font-family:'Space Grotesk',sans-serif; font-size:1.05rem; padding:22px 4px;
+    display:flex; justify-content:space-between; align-items:center; cursor:pointer;
+  }
+  .faq-q .plus{color:var(--violet); font-family:'JetBrains Mono',monospace; transition:transform .3s ease;}
+  .faq-item.open .plus{transform:rotate(45deg);}
+  .faq-a{
+    max-height:0; overflow:hidden; transition:max-height .35s ease, padding .35s ease;
+    color:var(--muted); font-size:0.92rem; line-height:1.6; padding:0 4px;
+  }
+  .faq-item.open .faq-a{max-height:200px; padding-bottom:22px;}
+
+  footer{
+    text-align:center; padding:50px 6vw; border-top:1px solid var(--line);
+    color:var(--muted); font-size:0.82rem;
+  }
+  footer .brand{justify-content:center; margin-bottom:10px;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important; transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+<nav>
+  <div class="brand"><div class="brand-mark">git</div> GitHub Master</div>
+  <div class="links">
+    <a href="#steps">Guide</a>
+    <a href="#mistakes">Mistakes</a>
+    <a href="#faq">FAQ</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="eyebrow mono">git init your-first-project</div>
+  <h1>Learn GitHub, <span class="accent">one commit at a time.</span></h1>
+  <p>Eight clear steps, real screens, and plain-English explanations — from your first repository to a live website.</p>
+  <div class="hero-ctas">
+    <a href="#steps" class="btn btn-primary">Start Learning</a>
+    <a href="#faq" class="btn btn-ghost">View FAQ</a>
+  </div>
+  <div class="scroll-cue"><div class="stem"></div>scroll</div>
+</section>
+
+<section id="steps">
+  <div class="timeline-wrap">
+    <div class="branch-line"></div>
+    <div class="branch-fill" id="branchFill"></div>
+
+    <!-- STEP 1 -->
+    <div class="step">
+      <div class="node-col"><div class="node">01</div></div>
+      <div class="step-body">
+        <div class="step-label mono">STEP 01 · ACCOUNT</div>
+        <h2>Create your GitHub account</h2>
+        <div class="step-grid">
+          <div class="laptop">
+            <div class="laptop-cam"></div>
+            <div class="screen">
+              <div class="browser-bar">
+                <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+                <div class="url">github.com/signup</div>
+              </div>
+              <div class="screen-body">
+                <span class="field-label">Email address</span>
+                <div class="field filled">you@example.com</div>
+                <span class="field-label">Create a password</span>
+                <div class="field">••••••••••</div>
+                <span class="field-label">Choose a username</span>
+                <div class="field">your-username</div>
+                <div class="gh-btn highlight-ring">Continue</div>
+              </div>
+            </div>
+          </div>
+          <div class="explain">
+            <ol>
+              <li>Open github.com</li>
+              <li>Click <strong>Sign Up</strong></li>
+              <li>Enter your email address</li>
+              <li>Create a username</li>
+              <li>Create a password</li>
+              <li>Verify your email</li>
+              <li>Log in successfully</li>
+            </ol>
+            <div class="note">Create your GitHub account before uploading any project.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step">
+      <div class="node-col"><div class="node">02</div></div>
+      <div class="step-body">
+        <div class="step-label mono">STEP 02 · REPOSITORY</div>
+        <h2>Create a new repository</h2>
+        <div class="step-grid">
+          <div class="laptop">
+            <div class="laptop-cam"></div>
+            <div class="screen">
+              <div class="browser-bar">
+                <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+                <div class="url">github.com/dashboard</div>
+              </div>
+              <div class="gh-topbar"><div class="gh-mark"></div><div class="gh-nav"><span>Repositories</span><span>Projects</span></div></div>
+              <div class="screen-body">
+                <div class="gh-btn highlight-ring" style="margin-bottom:14px;">＋ New repository</div>
+                <span class="field-label">Repository name</span>
+                <div class="field filled">my-first-project</div>
+                <span class="field-label">Visibility</span>
+                <div class="field filled">● Public</div>
+                <div class="gh-btn" style="margin-top:10px;">Create repository</div>
+              </div>
+            </div>
+          </div>
+          <div class="explain">
+            <ol>
+              <li>Click <strong>New Repository</strong></li>
+              <li>Enter a repository name</li>
+              <li>Add a description (optional)</li>
+              <li>Select <strong>Public</strong></li>
+              <li>Click <strong>Create Repository</strong></li>
+            </ol>
+            <div class="note">A repository is the folder where your project files are stored.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step">
+      <div class="node-col"><div class="node">03</div></div>
+      <div class="step-body">
+        <div class="step-label mono">STEP 03 · UPLOAD</div>
+        <h2>Upload your project files</h2>
+        <div class="step-grid">
+          <div class="laptop">
+            <div class="laptop-cam"></div>
+            <div class="screen">
+              <div class="browser-bar">
+                <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+                <div class="url">github.com/you/my-first-project</div>
+              </div>
+              <div class="gh-topbar"><div class="gh-mark"></div><div class="gh-nav"><span>Code</span><span>Issues</span></div></div>
+              <div class="screen-body">
+                <div style="display:flex; gap:8px; margin-bottom:14px;">
+                  <div class="gh-btn outline highlight-ring">＋ Add file</div>
+                  <div class="gh-btn outline">Add file ▾</div>
+                </div>
+                <div class="field" style="border-style:dashed; text-align:center; padding:18px;">
+                  Drag files here or <span style="color:var(--green);">choose your files</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="explain">
+            <ol>
+              <li>Click <strong>Add File</strong></li>
+              <li>Click <strong>Upload Files</strong></li>
+              <li>Click <strong>Choose Your Files</strong></li>
+              <li>Select all your project files</li>
+              <li>Wait until the upload finishes</li>
+            </ol>
+            <div class="note">Upload all HTML, CSS, JavaScript and image files together.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step">
+      <div class="node-col"><div class="node">04</div></div>
+      <div class="step-body">
+        <div class="step-label mono">STEP 04 · COMMIT</div>
+        <h2>Commit your changes</h2>
+        <div class="step-grid">
+          <div class="laptop">
+            <div class="laptop-cam"></div>
+            <div class="screen">
+              <div class="browser-bar">
+                <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+                <div class="url">github.com/you/my-first-project</div>
+              </div>
+              <div class="screen-body">
+                <span class="field-label">Commit message</span>
+                <div class="field filled">Add project files</div>
+                <span class="field-label" style="margin-top:8px; display:block;">Description (optional)</span>
+                <div class="field">Add an optional extended description...</div>
+                <div class="gh-btn highlight-ring" style="margin-top:10px;">Commit changes</div>
+              </div>
+            </div>
+          </div>
+          <div class="explain">
+            <ol>
+              <li>Scroll down to the bottom of the page</li>
+              <li>Click <strong>Commit Changes</strong></li>
+            </ol>
+            <div class="note">A commit means saving your project permanently in GitHub.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 5 -->
+    <div class="step">
+      <div class="node-col"><div class="node">05</div></div>
+      <div class="step-body">
+        <div class="step-label mono">STEP 05 · RENAME</div>
+        <h2>Rename your main file</h2>
+        <div class="step-grid">
+          <div class="laptop">
+            <div class="laptop-cam"></div>
+            <div class="screen">
+              <div class="browser-bar">
+                <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+                <div class="url">github.com/you/my-first-project</div>
+              </div>
+              <div class="screen-body" style="padding:6px 0;">
+                <div class="file-row"><span>home.html</span><span class="pencil highlight-ring">✎ edit</span></div>
+                <div class="file-row"><span>style.css</span><span class="pencil">✎ edit</span></div>
+                <div class="file-row"><span>script.js</span><span class="pencil">✎ edit</span></div>
+                <div style="padding:12px 8px 0;">
+                  <span class="field-label">Filename</span>
+                  <div class="field filled" style="color:var(--green);">index.html</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="explain">
+            <ol>
+              <li>Click your HTML file</li>
+              <li>Click the pencil (edit) icon</li>
+              <li>Remove the old filename</li>
+              <li>Rename it to <span class="mono" style="color:var(--green);">index.html</span></li>
+              <li>Click <strong>Commit Changes</strong></li>
+            </ol>
+            <div class="note">GitHub Pages opens index.html first, so your main file must have this exact name.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 6 -->
+    <div class="step">
+      <div class="node-col"><div class="node">06</div></div>
+      <div class="step-body">
+        <div class="step-label mono">STEP 06 · PUBLISH</div>
+        <h2>Enable GitHub Pages</h2>
+        <div class="step-grid">
+          <div class="laptop">
+            <div class="laptop-cam"></div>
+            <div class="screen">
+              <div class="browser-bar">
+                <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+                <div class="url">github.com/you/my-first-project/settings/pages</div>
+              </div>
+              <div class="screen-body">
+                <div style="margin-bottom:10px;"><span class="badge">Settings → Pages</span></div>
+                <span class="field-label">Branch</span>
+                <div class="field filled highlight-ring">main / (root)</div>
+                <div class="gh-btn" style="margin-top:10px;">Save</div>
+              </div>
+            </div>
+          </div>
+          <div class="explain">
+            <ol>
+              <li>Open <strong>Settings</strong></li>
+              <li>Click <strong>Pages</strong></li>
+              <li>Set branch to <strong>Main</strong></li>
+              <li>Set folder to <strong>Root</strong></li>
+              <li>Click <strong>Save</strong></li>
+            </ol>
+            <div class="note">GitHub Pages publishes your website online.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 7 -->
+    <div class="step">
+      <div class="node-col"><div class="node">07</div></div>
+      <div class="step-body">
+        <div class="step-label mono">STEP 07 · WAIT</div>
+        <h2>Give it a couple of minutes</h2>
+        <div class="step-grid">
+          <div class="laptop">
+            <div class="laptop-cam"></div>
+            <div class="screen">
+              <div class="browser-bar">
+                <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+                <div class="url">github.com/you/my-first-project/deployments</div>
+              </div>
+              <div class="loader"><div class="spinner"></div></div>
+            </div>
+          </div>
+          <div class="explain">
+            <ol>
+              <li>Wait 2–3 minutes while GitHub builds your site</li>
+            </ol>
+            <div class="note">GitHub needs a little time to publish your website — that's completely normal.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 8 -->
+    <div class="step">
+      <div class="node-col"><div class="node">08</div></div>
+      <div class="step-body">
+        <div class="step-label mono">STEP 08 · LIVE</div>
+        <h2>Get your website link</h2>
+        <div class="step-grid">
+          <div class="laptop">
+            <div class="laptop-cam"></div>
+            <div class="screen">
+              <div class="browser-bar">
+                <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+                <div class="url">github.com/you/my-first-project/settings/pages</div>
+              </div>
+              <div class="screen-body">
+                <span class="badge">✓ Your site is live at</span>
+                <div class="link-chip mono">https://username.github.io/project-name/</div>
+              </div>
+            </div>
+          </div>
+          <div class="explain">
+            <ol>
+              <li>Scroll to the top of the Pages settings</li>
+              <li>Copy your live site link</li>
+            </ol>
+            <div class="note">Congratulations! Your website is now live on the internet.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section id="mistakes">
+  <div class="section-head">
+    <div class="step-label mono">BONUS</div>
+    <h2>Common mistakes to avoid</h2>
+    <p>These small slips cause most first-time GitHub Pages failures.</p>
+  </div>
+  <div class="mistakes">
+    <div class="mistake-card">Forgot to rename the main file to <strong>index.html</strong></div>
+    <div class="mistake-card">Selected <strong>Private</strong> instead of Public repository</div>
+    <div class="mistake-card">Forgot to click <strong>Save</strong> in Pages settings</div>
+    <div class="mistake-card">Uploaded only one file instead of the full project</div>
+    <div class="mistake-card">Chose the wrong branch when enabling Pages</div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="faq">
+    <div class="section-head">
+      <div class="step-label mono">FAQ</div>
+      <h2>Good questions</h2>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q">What is GitHub? <span class="plus">＋</span></button>
+      <div class="faq-a">GitHub is a website where developers store, manage, and share their code and project files.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">What is a repository? <span class="plus">＋</span></button>
+      <div class="faq-a">A repository (or "repo") is a folder on GitHub that holds all the files for one project.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">What is a commit? <span class="plus">＋</span></button>
+      <div class="faq-a">A commit is a saved snapshot of your changes. Each commit permanently records what you changed and when.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">What is GitHub Pages? <span class="plus">＋</span></button>
+      <div class="faq-a">GitHub Pages is a free service that turns the files in your repository into a live website.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">How do I update my website? <span class="plus">＋</span></button>
+      <div class="faq-a">Upload your new or edited files and commit the changes — GitHub Pages rebuilds your site automatically.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="brand"><div class="brand-mark">git</div> GitHub Master</div>
+  Built for beginners. Every great project starts with one commit.
+</footer>
+
+<script>
+  // progress bar
+  const fill = document.getElementById('progressFill');
+  const branchFill = document.getElementById('branchFill');
+  const timeline = document.querySelector('.timeline-wrap');
+
+  function onScroll(){
+    const doc = document.documentElement;
+    const total = doc.scrollHeight - doc.clientHeight;
+    const pct = total > 0 ? (doc.scrollTop / total) * 100 : 0;
+    fill.style.width = pct + '%';
+
+    if(timeline){
+      const rect = timeline.getBoundingClientRect();
+      const start = rect.top + window.scrollY;
+      const end = start + rect.height - window.innerHeight * 0.5;
+      const progressed = Math.min(Math.max((window.scrollY - start) / (end - start), 0), 1);
+      branchFill.style.height = (progressed * 100) + '%';
+    }
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+
+  // reveal steps
+  const steps = document.querySelectorAll('.step');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in-view'); });
+  }, {threshold:0.25});
+  steps.forEach(s=>io.observe(s));
+
+  // faq accordion
+  document.querySelectorAll('.faq-item').forEach(item=>{
+    item.querySelector('.faq-q').addEventListener('click', ()=>{
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+      if(!isOpen) item.classList.add('open');
+    });
+  });
+</script>
+
+</body>
+</html>
